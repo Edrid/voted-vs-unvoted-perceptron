@@ -4,8 +4,8 @@ import VotedPerceptron
 from copy import copy
 
 def main():
-    #dataset1_occupancy()
-    dataset2_banknotes()
+    dataset1_occupancy()
+    # dataset2_banknotes()
 
 
 
@@ -19,7 +19,7 @@ def dataset1_occupancy():
     # print(matrix)
     unvoted = UnvotedPerceptron.UnvotedPerceptron()
     # matrix = UnvotedPerceptron.randomize_dataset(matrix)
-    unvoted.train(matrix, 100, 0.9) # dati, epoche, learning rate
+    unvoted.train(matrix, 1, 0.9) # dati, epoche, learning rate
 
     unvoted_testset = UnvotedPerceptron.adapt_dataset(testset);
     measureUnvotedPerceptron(unvoted, unvoted_testset)
@@ -45,11 +45,13 @@ def dataset2_banknotes(): # fixme: le operazioni di adattamento delle matrici no
 
     unvoted = UnvotedPerceptron.UnvotedPerceptron()
     # matrix = UnvotedPerceptron.randomize_dataset(matrix)
-    unvoted.train(copy(matrix), 1, 0.01) # dati, epoche, learning rate
+    unvoted.train(copy(matrix), 1, 0.01)  # dati, epoche, learning rate
 
     unvoted_testset = UnvotedPerceptron.adapt_dataset(copy(testset));
     measureUnvotedPerceptron(unvoted, unvoted_testset)
 
+def dataset3_abeloni():
+    print("\ABOUT: abelones")
 
 
 def measureVotedPerformance(percettrone, testset):
