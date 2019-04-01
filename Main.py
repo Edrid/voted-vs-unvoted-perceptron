@@ -4,8 +4,9 @@ import VotedPerceptron
 from copy import copy
 
 def main():
-    dataset1_occupancy()
+    # dataset1_occupancy()
     # dataset2_banknotes()
+    dataset3_abeloni()
 
 
 
@@ -35,7 +36,7 @@ def dataset2_banknotes(): # fixme: le operazioni di adattamento delle matrici no
     matrice = np.loadtxt(open("Files/Banknotes/banknotes.csv", "rb"), delimiter=",", skiprows=0)
     matrice = VotedPerceptron.randomize_dataset(matrice)
     testset = np.loadtxt(open("Files/Banknotes/banknotes_test.csv", "rb"), delimiter=",", skiprows=0)
-    matrix = UnvotedPerceptron.adapt_dataset(copy(matrice))
+    matrix = UnvotedPerceptron.adapt_dataset(copy(matrice)) # matrice has already been randomized
     # print(matrix)
 
     # parte votata
@@ -51,8 +52,22 @@ def dataset2_banknotes(): # fixme: le operazioni di adattamento delle matrici no
     measureUnvotedPerceptron(unvoted, unvoted_testset)
 
 def dataset3_abeloni():
-    print("\ABOUT: abelones")
+    print("\tABOUT: abelones")
+    matrice = np.loadtxt(open("Files/Abelones/abaloni_test.csv", "rb"), delimiter=",", skiprows=0)
+    matrice = VotedPerceptron.randomize_dataset(matrice)
+    testset = np.loadtxt(open("Files/Abelones/abaloni_training.csv", "rb"), delimiter=",", skiprows=0)
+    matrix = UnvotedPerceptron.adapt_dataset(copy(matrice))
 
+    voted = VotedPerceptron.VotedPerceptron()
+    voted.train_on_dataset(5, matrice)
+    measureVotedPerformance(voted, testset)
+
+    # parte non votata
+    unvoted = UnvotedPerceptron.UnvotedPerceptron()
+    unvoted.train(copy(matrix), 5, 1)
+
+    unvoted_testset = UnvotedPerceptron.adapt_dataset(copy(testset))
+    measureUnvotedPerceptron(unvoted, unvoted_testset)
 
 def measureVotedPerformance(percettrone, testset):
     counter = 0
