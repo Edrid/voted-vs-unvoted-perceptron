@@ -14,7 +14,7 @@ print(end - start)
 '''
 
 # Note to myself: se learning rate = 1 allora è come se non ci fosse, chiaramente
-EPOCHE = 2
+EPOCHE = 1
 
 def main():
     dataset1_occupancy()
@@ -95,29 +95,67 @@ def measureVotedPerformance(percettrone, testset):
     counter = 0
     total = 0
     matriceDiConfusione = np.zeros((2, 2), dtype=int)
-    print(matriceDiConfusione)
-    # se prediction is 1 then mat[0,0]+1, if prediction is -1 then mat[0,1]+1.. e così via todo
+    # print(matriceDiConfusione)
+    # se prediction is 1 then mat[0,0]+1, if prediction is -1 then mat[0,1]+1.. and so on.. todo
     for elemento in testset:
+
+        prediction = percettrone.predict(elemento)
+        if prediction == 1 and elemento[-1] == 1:
+            matriceDiConfusione[0, 0] += 1
+        elif prediction == -1 and elemento[-1] == -1:
+            matriceDiConfusione[1, 1] += 1
+        elif prediction == -1 and elemento[-1] == 1:
+            matriceDiConfusione[0, 1] += 1
+        elif prediction == 1 and elemento[-1] == -1:
+            matriceDiConfusione[1, 0] += 1
+        else:
+            print("----------------- ERRORE -------------------")
+
+
         prediction = percettrone.good_prediction(elemento)
         #print(prediction)
         if prediction:
             counter = counter+1
         total = total + 1
 
-    print("[VOTED] Accuratezza ", (counter/total)*100, "%")
+    print("[VOTED] Accuratezza ", round((counter/total)*100, 3), "%")
+    print(matriceDiConfusione)
     #print("[VOTED] Presi giusti ", counter, " su ", total)
 
 
 def measureUnvotedPerceptron(perceptron, testset):
     count = 0
-    for i in range(len(testset)):
-        res = perceptron.good_prediction(testset[i])
+    matriceDiConfusione = np.zeros((2, 2), dtype=int)
+    for elemento in testset:
+
+        prediction = perceptron.predict(elemento[:-1])
+        if prediction == 1 and elemento[-1] == 1:
+            matriceDiConfusione[0, 0] += 1
+        elif prediction == -1 and elemento[-1] == -1:
+            matriceDiConfusione[1, 1] += 1
+        elif prediction == -1 and elemento[-1] == 1:
+            matriceDiConfusione[0, 1] += 1
+        elif prediction == 1 and elemento[-1] == -1:
+            matriceDiConfusione[1, 0] += 1
+        else:
+            print("----------------- ERRORE -------------------")
+
+        res = perceptron.good_prediction(elemento)
         if res:
             count+=1
         # print(i, "Risultato", res)
 
-    print("[UNVOTED] Accuratezza", (count/len(testset))*100, "%")
+    print("[UNVOTED] Accuratezza", round((count/len(testset))*100, 3), "%")
+    print(matriceDiConfusione)
 
 
 if __name__ == "__main__":
     main()
+
+
+'''
+    Matrice di confusione:
+                [Predicted 1, Predicted -1]
+    [Label 1]       x11          x12
+    [Label -1]      x21          x22
+'''
