@@ -13,16 +13,16 @@ class VotedPerceptron:
 
 
     def __init__(self):
-        self.v_array = []
-        self.c_array = []
+        self.v_array = []  # list of perceptrons
+        self.c_array = []  # weights of perceptrons
         self.k = 0
 
     def train_on_dataset(self, epoche, dataset):
 
         # self.v_array.append(np.zeros(len(dataset[0])-1))
         array = np.zeros(len(dataset[0])-1)
-        for i in range(len(array)):
-            array[i] = 2
+        '''for i in range(len(array)):
+            array[i] = 2'''
         self.v_array.append(array)
         self.c_array = []
         self.c_array.append(0)
@@ -32,13 +32,13 @@ class VotedPerceptron:
             for i in range(len(dataset)):
                 y_segnato = self.sign(np.inner(self.v_array[self.k], dataset[i][:-1]))
                 # print(y_segnato, " è uguale a ", dataset[i][len(dataset[0])-1], "?\t", y_segnato == dataset[i][len(dataset[0])-1]) #allows showing the progress
-                if y_segnato == dataset[i][len(dataset[0])-1]:
+                if y_segnato == dataset[i][-1]:
                     self.c_array[self.k] = self.c_array[self.k]+1 # aumenta il voto di del k-esimo percettrone
                     # dunque se la predizione è corretta, il voto di questo percettrone aumenta
                 else:
                     #print(dataset[i][len(dataset[0])-1])
-                    temp = dataset[i][len(dataset[0])-1] * dataset[i][:-1]
-                    #print(temp)
+                    temp = dataset[i][-1] * dataset[i][:-1]  # prodotto vettore-scalare
+                    # print("Temp: ", temp)
                     #print(self.v_array[self.k])
                     self.v_array.append(self.v_array[self.k] + temp)
                     self.c_array.append(1)
@@ -49,6 +49,7 @@ class VotedPerceptron:
             for i in range(self.k+1):
                 s = s + self.c_array[i]*self.sign(np.inner(self.v_array[i], np.array(dataset_instance[:-1])))
                 #print(s)
+                # print(self.sign(np.inner(self.v_array[i], np.array(dataset_instance[:-1]))))
             prediction = self.sign(s)
             return prediction
 
@@ -66,5 +67,5 @@ def randomize_dataset(set):
         temp = dataset[first]
         dataset[first] = dataset[second]
         dataset[second] = temp
-        #print(first, second)
+        # print(first, second)
     return dataset

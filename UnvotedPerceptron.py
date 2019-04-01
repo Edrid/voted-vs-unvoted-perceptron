@@ -6,19 +6,33 @@ from copy import copy
 class UnvotedPerceptron:
 
     def __init__(self):
-        self.weights = []
+        print("")
 
     def train(self, matrix, epoche, lrate):
-        for i in range(len(matrix[0])):
+        '''for i in range(len(matrix[0])):
             # self.weights.append(random.uniform(0,2))
-            self.weights.append(random.uniform(0, 2))
+            self.weights.append(random.uniform(0, 2))'''
+        self.weights = np.zeros(len(matrix[0])-1) # if instead of zero there's the thing sopra il percettrone non votato non ha quasi mai performance orrende
         for epoca in range(epoche):
             for i in range(len(matrix)):
                 prediction = self.predict(matrix[i][:-1])
                 error = matrix[i][-1]-prediction
 
                 for j in range(len(self.weights)):
-                    self.weights[j] = self.weights[j]+(lrate*error*matrix[i][j])
+                    self.weights[j] = self.weights[j]+(lrate*error*matrix[i][j]) # se lrate=1 => lrate è nullo
+        return
+
+    def trainV2(self, matrix, epoche):
+        self.weights = np.zeros(len(matrix[0]-1))
+        for epoca in range(epoche):
+            for i in range(len(matrix)):
+                prediction = self.predict(matrix[i][:-1])
+
+                # if prediction not correct, then...
+                if prediction != matrix[i][-1]:
+                    for j in range(len(self.weights)):
+                        self.weights[j] = self.weights[j] + matrix[i][j]*matrix[i][-1]
+
         return
 
     def predict(self, inputs):
