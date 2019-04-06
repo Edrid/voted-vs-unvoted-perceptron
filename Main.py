@@ -1,9 +1,9 @@
 import numpy as np
 import UnvotedPerceptron
-import VotedPerceptron
+import VotedPerceptronV2
 from copy import copy
 
-''' for measuring execution time:
+''' for measuring execution time: anche se...
 import time
 
 start = time.time()
@@ -14,20 +14,20 @@ print(end - start)
 '''
 
 # Note to myself: se learning rate = 1 allora è come se non ci fosse, chiaramente
-EPOCHE = 1
+EPOCHE = 6
 
 def main():
-    dataset1_occupancy()
-    dataset2_banknotes()
+    #dataset1_occupancy()
+    #dataset2_banknotes()
     dataset3_abeloni()
-
+    #dataset4_madalones()
 
 
 def dataset1_occupancy():
     print("\tABOUT: occupancy")
     # parte non votata
     matrice = np.loadtxt(open("Files/Occupation/occupazione.csv", "rb"), delimiter=",", skiprows=0)
-    matrice = VotedPerceptron.randomize_dataset(matrice)
+    matrice = VotedPerceptronV2.randomize_dataset(matrice)
     testset = np.loadtxt(open("Files/Occupation/occtest1.csv", "rb"), delimiter=",", skiprows=0)
     matrix = UnvotedPerceptron.adapt_dataset(matrice)
     # print(matrix)
@@ -38,24 +38,24 @@ def dataset1_occupancy():
     unvoted_testset = UnvotedPerceptron.adapt_dataset(testset);
 
     # parte votata
-    voted = VotedPerceptron.VotedPerceptron()
+    voted = VotedPerceptronV2.VotedPerceptron()
     voted.train_on_dataset(EPOCHE, matrice)
 
     measureUnvotedPerceptron(unvoted, unvoted_testset)
 
     measureVotedPerformance(voted, testset)
 
-def dataset2_banknotes(): # fixme: le operazioni di adattamento delle matrici non devono alterare le matrici, sembra che per ora sia così, cambiando l'ordine dell'esecuzione il risultato cambia
+def dataset2_banknotes(): # le operazioni di adattamento delle matrici non devono alterare le matrici, sembra che per ora sia così, cambiando l'ordine dell'esecuzione il risultato cambia
     print("\n\tABOUT: fake banknotes")
     # parte non votata
-    matrice = np.loadtxt(open("Files/Banknotes/banknotes.csv", "rb"), delimiter=",", skiprows=0)
-    matrice = VotedPerceptron.randomize_dataset(matrice)
+    matrice = np.loadtxt(open("Files/Banknotes/banknotes_scaled.csv", "rb"), delimiter=",", skiprows=0)
+    matrice = VotedPerceptronV2.randomize_dataset(matrice)
     testset = np.loadtxt(open("Files/Banknotes/banknotes_test.csv", "rb"), delimiter=",", skiprows=0)
-    matrix = UnvotedPerceptron.adapt_dataset(copy(matrice)) # matrice has already been randomized
+    matrix = UnvotedPerceptron.adapt_dataset(copy(matrice))  # matrice has already been randomized
     # print(matrix)
 
     # parte votata
-    voted = VotedPerceptron.VotedPerceptron()
+    voted = VotedPerceptronV2.VotedPerceptron()
     voted.train_on_dataset(EPOCHE, matrice)
 
     unvoted = UnvotedPerceptron.UnvotedPerceptron()
@@ -63,8 +63,13 @@ def dataset2_banknotes(): # fixme: le operazioni di adattamento delle matrici no
     # unvoted.train(copy(matrix), 1, 1)  # dati, epoche, learning rate
     unvoted.trainV2(copy(matrix), EPOCHE)
 
-
     unvoted_testset = UnvotedPerceptron.adapt_dataset(copy(testset));
+
+    matrice = VotedPerceptronV2.randomize_dataset(matrice)
+
+    # voted.train_on_dataset(EPOCHE, matrice)
+    # unvoted.trainV2(UnvotedPerceptron.adapt_dataset(copy(matrice)), EPOCHE)
+
     measureUnvotedPerceptron(unvoted, unvoted_testset)
 
     measureVotedPerformance(voted, testset)
@@ -73,12 +78,12 @@ def dataset2_banknotes(): # fixme: le operazioni di adattamento delle matrici no
 
 def dataset3_abeloni():
     print("\n\tABOUT: abelones")
-    matrice = np.loadtxt(open("Files/Abelones/abaloni_test.csv", "rb"), delimiter=",", skiprows=0)
-    matrice = VotedPerceptron.randomize_dataset(matrice)
-    testset = np.loadtxt(open("Files/Abelones/abaloni_training.csv", "rb"), delimiter=",", skiprows=0)
+    matrice = np.loadtxt(open("Files/Abelones/abaloni_training.csv", "rb"), delimiter=",", skiprows=0)
+    matrice = VotedPerceptronV2.randomize_dataset(matrice)
+    testset = np.loadtxt(open("Files/Abelones/abaloni_test.csv", "rb"), delimiter=",", skiprows=0)
     matrix = UnvotedPerceptron.adapt_dataset(copy(matrice))
 
-    voted = VotedPerceptron.VotedPerceptron()
+    voted = VotedPerceptronV2.VotedPerceptron()
     voted.train_on_dataset(EPOCHE, matrice)
 
     # parte non votata
@@ -90,6 +95,24 @@ def dataset3_abeloni():
     measureUnvotedPerceptron(unvoted, unvoted_testset)
     measureVotedPerformance(voted, testset)
 
+def dataset4_madalones():
+    print("\n\tABOUT: madelones")
+    matrice = np.loadtxt(open("Files/Madalones/madalones_training_adapted.csv", "rb"), delimiter=",", skiprows=0)
+    matrice = VotedPerceptronV2.randomize_dataset(matrice)
+    testset = np.loadtxt(open("Files/Madalones/madalones_test_adapted.csv", "rb"), delimiter=",", skiprows=0)
+    matrix = UnvotedPerceptron.adapt_dataset(copy(matrice))
+
+    voted = VotedPerceptronV2.VotedPerceptron()
+    voted.train_on_dataset(EPOCHE, matrice)
+
+    # parte non votata
+    unvoted = UnvotedPerceptron.UnvotedPerceptron()
+    # unvoted.train(copy(matrix), 15, 1)
+    unvoted.trainV2(copy(matrix), EPOCHE)
+
+    unvoted_testset = UnvotedPerceptron.adapt_dataset(copy(testset))
+    measureUnvotedPerceptron(unvoted, unvoted_testset)
+    measureVotedPerformance(voted, testset)
 
 def measureVotedPerformance(percettrone, testset):
     counter = 0
@@ -110,7 +133,6 @@ def measureVotedPerformance(percettrone, testset):
             matriceDiConfusione[1, 0] += 1
         else:
             print("----------------- ERRORE -------------------")
-
 
         prediction = percettrone.good_prediction(elemento)
         #print(prediction)

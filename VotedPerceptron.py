@@ -29,6 +29,7 @@ class VotedPerceptron:
         # dataset will be a 2d array
         hi = 0
         for epoca in range(epoche):
+            # dataset = randomize_dataset(dataset) # todo era per provare se migliorava la situazione
             for i in range(len(dataset)):
                 y_segnato = self.sign(np.inner(self.v_array[self.k], dataset[i][:-1]))
                 # print(y_segnato, " è uguale a ", dataset[i][len(dataset[0])-1], "?\t", y_segnato == dataset[i][len(dataset[0])-1]) #allows showing the progress
