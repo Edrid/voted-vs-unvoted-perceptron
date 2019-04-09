@@ -31,7 +31,7 @@ class VotedPerceptron:
         for epoca in range(epoche):
             # dataset = randomize_dataset(dataset) # todo era per provare se migliorava la situazione
             for i in range(len(dataset)):
-                y_segnato = self.sign(np.inner(self.v_array[self.k], dataset[i][:-1]))
+                y_segnato = self.sign(np.dot(self.v_array[self.k], dataset[i][:-1]))
                 # print(y_segnato, " è uguale a ", dataset[i][len(dataset[0])-1], "?\t", y_segnato == dataset[i][len(dataset[0])-1]) #allows showing the progress
                 if y_segnato == dataset[i][-1]:
                     self.c_array[self.k] = self.c_array[self.k]+1 # aumenta il voto di del k-esimo percettrone

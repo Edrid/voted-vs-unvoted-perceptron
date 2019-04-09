@@ -2,6 +2,8 @@ import numpy as np
 import UnvotedPerceptron
 import VotedPerceptronV2
 from copy import copy
+import time
+import csv
 
 ''' for measuring execution time: anche se...
 import time
@@ -14,13 +16,43 @@ print(end - start)
 '''
 
 # Note to myself: se learning rate = 1 allora è come se non ci fosse, chiaramente
-EPOCHE = 6
+EPOCHE = 1
 
 def main():
-    #dataset1_occupancy()
+    global EPOCHE
+    #print(dataset1_occupancy())
     #dataset2_banknotes()
-    dataset3_abeloni()
-    #dataset4_madalones()
+
+    results = []
+    voted_score = 0
+    unvoted_score = 0
+    for _ in range(6):
+        for ciao in range(5):
+            res = dataset5_adult()
+            res = (EPOCHE, ) + res
+            # print(res)
+            results.append(res)
+            if res[1] > res[2]:
+                unvoted_score += 1
+            else:
+                voted_score += 1
+        EPOCHE += 1
+
+    for dato in results:
+        print(dato)
+    print("Voted score: ", voted_score, "Unvoted score: ", unvoted_score)
+
+    with open('Files/Adult/adult_results.csv', mode='w') as data_file:
+        data_writer = csv.writer(data_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+
+        for dato in results:
+            data_writer.writerow(dato)
+
+    # dataset2_banknotes()
+    # dataset3_abeloni()
+
+
+
 
 
 def dataset1_occupancy():
@@ -34,19 +66,36 @@ def dataset1_occupancy():
     unvoted = UnvotedPerceptron.UnvotedPerceptron()
     # matrix = UnvotedPerceptron.randomize_dataset(matrix)
     #unvoted.train(matrix, 1, 0.9) # dati, epoche, learning rate
+    start = time.time()
     unvoted.trainV2(matrix, EPOCHE)
-    unvoted_testset = UnvotedPerceptron.adapt_dataset(testset);
+    end = time.time()
+    unvoted_training_time = end-start
+
+    start = time.time()
+    unvoted_testset = UnvotedPerceptron.adapt_dataset(testset)
+    end = time.time()
+    unvoted_pred_time = end-start
 
     # parte votata
+    start = time.time()
     voted = VotedPerceptronV2.VotedPerceptron()
+    end = time.time()
+    voted_training_time = end-start
+
+    start = time.time()
     voted.train_on_dataset(EPOCHE, matrice)
+    end = time.time()
+    voted_pred_time = end-start
 
-    measureUnvotedPerceptron(unvoted, unvoted_testset)
+    unvoted_perf = measureUnvotedPerceptron(unvoted, unvoted_testset)
 
-    measureVotedPerformance(voted, testset)
+    voted_perf = measureVotedPerformance(voted, testset)
+
+    return unvoted_perf, voted_perf, unvoted_training_time, unvoted_pred_time, voted_training_time, voted_pred_time
+
 
 def dataset2_banknotes(): # le operazioni di adattamento delle matrici non devono alterare le matrici, sembra che per ora sia così, cambiando l'ordine dell'esecuzione il risultato cambia
-    print("\n\tABOUT: fake banknotes")
+    print("\n\tFake banknotes", "\tEpoche: ", EPOCHE)
     # parte non votata
     matrice = np.loadtxt(open("Files/Banknotes/banknotes_scaled.csv", "rb"), delimiter=",", skiprows=0)
     matrice = VotedPerceptronV2.randomize_dataset(matrice)
@@ -61,23 +110,36 @@ def dataset2_banknotes(): # le operazioni di adattamento delle matrici non devon
     unvoted = UnvotedPerceptron.UnvotedPerceptron()
     # matrix = UnvotedPerceptron.randomize_dataset(matrix)
     # unvoted.train(copy(matrix), 1, 1)  # dati, epoche, learning rate
-    unvoted.trainV2(copy(matrix), EPOCHE)
+    start = time.time()
+    unvoted.trainV2(matrix, EPOCHE)
+    end = time.time()
+    unvoted_training_time = end - start
 
-    unvoted_testset = UnvotedPerceptron.adapt_dataset(copy(testset));
+    start = time.time()
+    unvoted_testset = UnvotedPerceptron.adapt_dataset(testset)
+    end = time.time()
+    unvoted_pred_time = end - start
 
-    matrice = VotedPerceptronV2.randomize_dataset(matrice)
+    # parte votata
+    start = time.time()
+    voted = VotedPerceptronV2.VotedPerceptron()
+    end = time.time()
+    voted_training_time = end - start
 
-    # voted.train_on_dataset(EPOCHE, matrice)
-    # unvoted.trainV2(UnvotedPerceptron.adapt_dataset(copy(matrice)), EPOCHE)
+    start = time.time()
+    voted.train_on_dataset(EPOCHE, matrice)
+    end = time.time()
+    voted_pred_time = end - start
 
-    measureUnvotedPerceptron(unvoted, unvoted_testset)
+    unvoted_perf = measureUnvotedPerceptron(unvoted, unvoted_testset)
 
-    measureVotedPerformance(voted, testset)
+    voted_perf = measureVotedPerformance(voted, testset)
 
+    return unvoted_perf, voted_perf, unvoted_training_time, unvoted_pred_time, voted_training_time, voted_pred_time
 
 
 def dataset3_abeloni():
-    print("\n\tABOUT: abelones")
+    print("\n\tAbeloni", "\tEpoche: ", EPOCHE)
     matrice = np.loadtxt(open("Files/Abelones/abaloni_training.csv", "rb"), delimiter=",", skiprows=0)
     matrice = VotedPerceptronV2.randomize_dataset(matrice)
     testset = np.loadtxt(open("Files/Abelones/abaloni_test.csv", "rb"), delimiter=",", skiprows=0)
@@ -89,11 +151,32 @@ def dataset3_abeloni():
     # parte non votata
     unvoted = UnvotedPerceptron.UnvotedPerceptron()
     # unvoted.train(copy(matrix), 15, 1)
-    unvoted.trainV2(copy(matrix), EPOCHE)
+    start = time.time()
+    unvoted.trainV2(matrix, EPOCHE)
+    end = time.time()
+    unvoted_training_time = end - start
 
-    unvoted_testset = UnvotedPerceptron.adapt_dataset(copy(testset))
-    measureUnvotedPerceptron(unvoted, unvoted_testset)
-    measureVotedPerformance(voted, testset)
+    start = time.time()
+    unvoted_testset = UnvotedPerceptron.adapt_dataset(testset)
+    end = time.time()
+    unvoted_pred_time = end - start
+
+    # parte votata
+    start = time.time()
+    voted = VotedPerceptronV2.VotedPerceptron()
+    end = time.time()
+    voted_training_time = end - start
+
+    start = time.time()
+    voted.train_on_dataset(EPOCHE, matrice)
+    end = time.time()
+    voted_pred_time = end - start
+
+    unvoted_perf = measureUnvotedPerceptron(unvoted, unvoted_testset)
+
+    voted_perf = measureVotedPerformance(voted, testset)
+
+    return unvoted_perf, voted_perf, unvoted_training_time, unvoted_pred_time, voted_training_time, voted_pred_time
 
 def dataset4_madalones():
     print("\n\tABOUT: madelones")
@@ -113,6 +196,83 @@ def dataset4_madalones():
     unvoted_testset = UnvotedPerceptron.adapt_dataset(copy(testset))
     measureUnvotedPerceptron(unvoted, unvoted_testset)
     measureVotedPerformance(voted, testset)
+
+def dataset5_adult():
+    print("\tABOUT: adult")
+    # parte non votata
+    matrice = np.loadtxt(open("Files/Adult/adult_training_normalized.csv", "rb"), delimiter=",", skiprows=0)
+    matrice = VotedPerceptronV2.randomize_dataset(matrice)
+    testset = np.loadtxt(open("Files/Adult/adult_test_normalized.csv", "rb"), delimiter=",", skiprows=0)
+    matrix = UnvotedPerceptron.adapt_dataset(matrice)
+    # print(matrix)
+    unvoted = UnvotedPerceptron.UnvotedPerceptron()
+    # matrix = UnvotedPerceptron.randomize_dataset(matrix)
+    #unvoted.train(matrix, 1, 0.9) # dati, epoche, learning rate
+    start = time.time()
+    unvoted.trainV2(matrix, EPOCHE)
+    end = time.time()
+    unvoted_training_time = end-start
+
+    start = time.time()
+    unvoted_testset = UnvotedPerceptron.adapt_dataset(testset)
+    end = time.time()
+    unvoted_pred_time = end-start
+
+    # parte votata
+    start = time.time()
+    voted = VotedPerceptronV2.VotedPerceptron()
+    end = time.time()
+    voted_training_time = end-start
+
+    start = time.time()
+    voted.train_on_dataset(EPOCHE, matrice)
+    end = time.time()
+    voted_pred_time = end-start
+
+    unvoted_perf = measureUnvotedPerceptron(unvoted, unvoted_testset)
+
+    voted_perf = measureVotedPerformance(voted, testset)
+
+    return unvoted_perf, voted_perf, unvoted_training_time, unvoted_pred_time, voted_training_time, voted_pred_time
+
+def dataset6_heart():
+    print("\tABOUT: heart")
+    # parte non votata
+    matrice = np.loadtxt(open("Files/Heart/heart_train.csv", "rb"), delimiter=",", skiprows=0)
+    matrice = VotedPerceptronV2.randomize_dataset(matrice)
+    testset = np.loadtxt(open("Files/Heart/heart_test.csv", "rb"), delimiter=",", skiprows=0)
+    matrix = UnvotedPerceptron.adapt_dataset(matrice)
+    # print(matrix)
+    unvoted = UnvotedPerceptron.UnvotedPerceptron()
+    # matrix = UnvotedPerceptron.randomize_dataset(matrix)
+    # unvoted.train(matrix, 1, 0.9) # dati, epoche, learning rate
+    start = time.time()
+    unvoted.trainV2(matrix, EPOCHE)
+    end = time.time()
+    unvoted_training_time = end - start
+
+    start = time.time()
+    unvoted_testset = UnvotedPerceptron.adapt_dataset(testset)
+    end = time.time()
+    unvoted_pred_time = end - start
+
+    # parte votata
+    start = time.time()
+    voted = VotedPerceptronV2.VotedPerceptron()
+    end = time.time()
+    voted_training_time = end - start
+
+    start = time.time()
+    voted.train_on_dataset(EPOCHE, matrice)
+    end = time.time()
+    voted_pred_time = end - start
+
+    unvoted_perf = measureUnvotedPerceptron(unvoted, unvoted_testset)
+
+    voted_perf = measureVotedPerformance(voted, testset)
+
+    return unvoted_perf, voted_perf, unvoted_training_time, unvoted_pred_time, voted_training_time, voted_pred_time
+
 
 def measureVotedPerformance(percettrone, testset):
     counter = 0
@@ -140,9 +300,12 @@ def measureVotedPerformance(percettrone, testset):
             counter = counter+1
         total = total + 1
 
-    print("[VOTED] Accuratezza ", round((counter/total)*100, 3), "%")
+    # print("[VOTED] Accuratezza ", round((counter/total)*100, 3), "%")
+    print("[VOTED] ")
     print(matriceDiConfusione)
     #print("[VOTED] Presi giusti ", counter, " su ", total)
+    return round((counter/total)*100, 3)
+
 
 
 def measureUnvotedPerceptron(perceptron, testset):
@@ -167,8 +330,10 @@ def measureUnvotedPerceptron(perceptron, testset):
             count+=1
         # print(i, "Risultato", res)
 
-    print("[UNVOTED] Accuratezza", round((count/len(testset))*100, 3), "%")
+    # print("[UNVOTED] Accuratezza", round((count/len(testset))*100, 3), "%")
+    print("[UNVOTED] ")
     print(matriceDiConfusione)
+    return round((count/len(testset))*100, 3)
 
 
 if __name__ == "__main__":
