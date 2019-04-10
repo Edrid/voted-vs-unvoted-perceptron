@@ -4,6 +4,7 @@ import VotedPerceptronV2
 from copy import copy
 import time
 import csv
+import matplotlib.pyplot as plt
 
 ''' for measuring execution time: anche se...
 import time
@@ -19,6 +20,67 @@ print(end - start)
 EPOCHE = 1
 
 def main():
+    plot_results()
+
+def plot_results():
+    dati_ED = []
+    dati_ngram = []
+    dati_CED = []
+    dati_EED = []
+    with open('edit_distance_tests.csv') as dati:
+        csv_reader = csv.reader(dati, delimiter=',')
+        line_count = 0
+        for row in csv_reader:
+            dati_ED.append(row)
+
+    with open('ngram2_tests.csv') as dati:
+        csv_reader = csv.reader(dati, delimiter=',')
+        line_count = 0
+        for row in csv_reader:
+            dati_ngram.append(row)
+
+    with open('constrained_edit_distance_tests.csv') as dati:
+        csv_reader = csv.reader(dati, delimiter=',')
+        line_count = 0
+        for row in csv_reader:
+            dati_CED.append(row)
+
+    with open('efficient_ngram.csv') as dati:
+        csv_reader = csv.reader(dati, delimiter=',')
+        line_count = 0
+        for row in csv_reader:
+            dati_EED.append(row)
+    ed = []
+    for elemento in dati_ED:
+        elemento[1] = float(elemento[1])
+        ed.append(float(elemento[1]))
+
+    for elemento in dati_ngram:
+        elemento[1] = float(elemento[1])
+
+    ced = []
+    for elemento in dati_CED:
+        elemento[1] = float(elemento[1])
+        ced.append(float(elemento[1]))
+
+    eed = []
+    for elemento in dati_EED:
+        elemento[1] = float(elemento[1])
+        eed.append(float(elemento[1]))
+
+    xpos = np.arange(len(dati_ED))
+
+    plt.xticks(xpos, sample_query_set)
+    plt.xlabel("Query")
+    plt.ylabel("Tempo (secondi)")
+
+    #plt.bar(xpos-0.3, ed, width=0.3, label="Edit distance")
+    plt.bar(xpos-3/20, ced, width=0.3, label="Edit distance w/ ngram restriction")
+    plt.bar(xpos+3/20, eed, width=0.3, label="Edit distance w/ ngram restriction implemented with a hash table")
+    plt.legend()
+    plt.show()
+
+def run_tests_and_save_results(): #this has to be changed in order to change the datasets and where it has to be saved
     global EPOCHE
     #print(dataset1_occupancy())
     #dataset2_banknotes()
