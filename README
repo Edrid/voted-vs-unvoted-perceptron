@@ -1,10 +1,15 @@
 Per l'utilizzo del codice:
 1) Scaricare la repository, compresi i files csv nei quali sono contenuti i dataset su cui è stato fatto il preprocessing
 2) La funzione main() ha una chiamata alla funzione run_tests_and_save_results() che permette di fare i test
-3) Per fare i test su datasets diversi, sono disponibili una funzione per ciascun dataset utilizzato. 
+3) Per fare i test su datasets diversi, sono disponibili una funzione per ciascun dataset utilizzato della forma dataset[n]_nomedataset() 
 E' sufficiente sostituire all'interno del ciclo la funzione associata al dataset su cui vogliamo fare gli esperimenti
 E' possibile cambiare il numero di iterazioni cambiando il numero di iterazioni nei due cicli for innestati:
 il primo ciclo indica il numero massimo di epoche, il secondo ciclo indica il numero di prove da fare per ogni epoca.
 
-La chiamata ad una funzione del tipo dataset[n]_nomedataset() aggiornerà i files csv con i risultati sperimentali che si
-ottengono alla fine dell'esecuzione. 
+E' importante che prima dell'esecuzione degli esperimenti vengano, nelle ultime righe della funzione run_tests_and_save_results()
+venga specificato il file csv nel quale dovranno essere salvati i risultati sperimentali.
+Eventualmente è possibile cancellare tali righe di salvataggio e vedere i risultati solamente in console.
+
+Il progetto è stato sviluppato con l'ambiente di sviluppo PyCharm.
+
+Dipendenze: numpy, csv, random, copy.
