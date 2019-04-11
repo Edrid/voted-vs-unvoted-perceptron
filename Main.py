@@ -34,7 +34,7 @@ def run_tests_and_save_results(): #this has to be changed in order to change the
     unvoted_score = 0
     for _ in range(6):
         for ciao in range(5):
-            res = dataset5_adult()
+            res = dataset2_banknotes()
             res = (EPOCHE, ) + res
             # print(res)
             results.append(res)
@@ -48,11 +48,11 @@ def run_tests_and_save_results(): #this has to be changed in order to change the
         print(dato)
     print("Voted score: ", voted_score, "Unvoted score: ", unvoted_score)
 
-    with open('Files/Adult/adult_results.csv', mode='w') as data_file:
+    '''with open('Files/Banknotes/adult_results.csv', mode='w') as data_file:
         data_writer = csv.writer(data_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
         for dato in results:
-            data_writer.writerow(dato)
+            data_writer.writerow(dato)'''
 
     # dataset2_banknotes()
     # dataset3_abeloni()
