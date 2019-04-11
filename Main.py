@@ -33,8 +33,8 @@ def run_tests_and_save_results(): #this has to be changed in order to change the
     voted_score = 0
     unvoted_score = 0
     for _ in range(6):
-        for ciao in range(5):
-            res = dataset2_banknotes()
+        for __ in range(5):
+            res = dataset5_adult()
             res = (EPOCHE, ) + res
             # print(res)
             results.append(res)
